@@ -2,7 +2,7 @@ ECM1410 Pair Programming Coursework
 
 Please complete this coverpage and include in your submission:
 
-Student 1 Candidate number:
+Student 1 Candidate number: MAIN PERSON 1
 
 Student 2 Candidate number: Partner TEST
 
