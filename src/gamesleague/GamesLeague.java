@@ -61,9 +61,11 @@ public class GamesLeague implements GamesLeagueInterface {
      * Permenantly deactivates player account.
      * <p>
      * Note to preserve the integrity of the league tables the removal process should follow:
-     * i) all personal player anonymised with playerId placeholders
+     * i) all personal player anonymised as below:
+     *     - name & displayName to "anonymousplayerX" where X is playerId
+     *     - email is set to "" and phone is set to ""
      * ii) all player gameplay reports are set to empty strings
-     * iii) player is set to in in all league memberships
+     * iii) player is set as inactive in all their league memberships
      *
      * @param playerId The ID of the player to be deactivated.
      * @throws IDInvalidException If the ID does not match to any player in the system.
@@ -110,8 +112,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * Get the player id from the email.
      *
      * @param email The email of the player.
-     * @throws IDInvalidException If the email does not match to any player in the system.
-     * @return The ID of the player in the system or null if the player does not exist.
+     * @return The ID of the player in the system or -1 if the player does not exist.
      */
     public int getPlayerId(String email){
         
@@ -240,8 +241,7 @@ public class GamesLeague implements GamesLeagueInterface {
     /**
      * Creates a league.
      * <p>
-     * The state of this WordLeaguePortal must be unchanged if any
-     * exceptions are thrown.
+     * 
      *
      * @param owner PlayerId of the league owner.
      * @param name The name of the league.
@@ -252,7 +252,10 @@ public class GamesLeague implements GamesLeagueInterface {
      *                              is less than 1 characters or more than 20 characters.
      * @throws IllegalNameException if it duplicates an existing league name
      */
-    public int createLeague(int owner, String name, GameType gameType ) throws IDInvalidException{
+    public int createLeague(int owner, String name, GameType gameType ) 
+        throws  IDInvalidException, 
+                InvalidNameException, 
+                IllegalNameException{
         
         return 0;  // placeholder so class compiles
     };
@@ -260,8 +263,7 @@ public class GamesLeague implements GamesLeagueInterface {
     /**
      * Removes a league and all associated game data from the system.
      * <p>
-     * The state of this WordLeaguePortal must be unchanged if any
-     * exceptions are thrown.
+     * 
      *
      * @param leagueId The ID of the league to be removed.
      * @throws IDInvalidException If the ID does not match to any league in the system.
@@ -404,19 +406,31 @@ public class GamesLeague implements GamesLeagueInterface {
     };
 
     /**
-     * Get the status of a league 
+     * Get the status of a league. Your code should look at the current local date
+     * as epoch day and compare it with any start and end dates that have been set for the league
+     * Note that leagues are created without a specified start/end date
+     * 
+     *  - If the league has start date is in the future (or no start date specified)
+     *    the status should be PENDING
+     * 
+     *  - If the league has a specified start date in the past and 
+     *    a specified end date in the future (or no specified end date) then 
+     *    the status should be IN_PROGRESS
+     * 
+     *  - If the league has a specified end date in the past then
+     *    the status should be CLOSED
      * 
      * @param leagueId The ID of the league being queried.
-     * @param day The epoch day being queried.
      * 
-     * @return The status of the league as enum
-     *          PENDING       not yet played
-     *          IN_PROGRESS   active 
-     *          CLOSED        ended  
+     * @return The status of the league as enum as above
+     *          PENDING       not yet started
+     *          IN_PROGRESS   league is active
+     *          CLOSED        current date is after specified league end date 
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public Status getLeagueStatus(int leagueId ) throws IDInvalidException{
+    public Status getLeagueStatus(int leagueId ) 
+        throws IDInvalidException{
         
         return Status.PENDING; // placeholder so class compiles
     };
@@ -445,7 +459,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalOperationException If the league is already closed or invalid day.
      */
-    public void setLeagueEndDate(int leagueId, int day) throws IDInvalidException{
+    public void setLeagueEndDate(int leagueId, int day) 
+        throws IDInvalidException, IllegalOperationException{
 
         return; // placeholder so class compiles
     };
@@ -503,7 +518,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalNameException If the new name already exists in the platform.
      */
-    public int cloneLeague(int leagueId, String newName) throws IDInvalidException{
+    public int cloneLeague(int leagueId, String newName) 
+        throws IDInvalidException, IllegalNameException{
         
         return 0; // placeholder so class compiles
     };
@@ -515,11 +531,10 @@ public class GamesLeague implements GamesLeagueInterface {
      * @param leagueId The ID of the league.
      * @param playerId The ID of the player.
      * 
-     * @throws IDInvalidException If the ID does not match to any league or player in the system.
-     * @throws IllegalOperationException If the ID does not match to any player in the league.
+     * @throws IDInvalidException If the ID does not match to any league or player in the league.
      */
     public boolean isLeaguePlayerActive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalArgumentException{
+        throws IDInvalidException{
 
         return false; // placeholder so class compiles
     };
@@ -534,7 +549,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
     public void setLeaguePlayerInactive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalArgumentException {
+        throws IDInvalidException, IllegalOperationException {
 
         return; // placeholder so class compiles
     };
@@ -549,7 +564,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
     public void setLeaguePlayerActive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalArgumentException{
+        throws IDInvalidException, IllegalOperationException{
 
         return; // placeholder so class compiles
     };
@@ -674,7 +689,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The status of the day as enum
      *          PENDING       no gameplay yet
      *          IN_PROGRESS   active and still games to play
-     *          CLOSED        ended all games played or month ended   
+     *          CLOSED        when all players have played or day has ended   
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
@@ -759,7 +774,7 @@ public class GamesLeague implements GamesLeagueInterface {
      *          CLOSED        ended all games played or week ended    
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException If the day is not within a valid week for the league.
+     * @throws InvalidDateException If the day is not within a valid week for the league.
      */
     public Status getWeekStatus(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException{
@@ -779,7 +794,7 @@ public class GamesLeague implements GamesLeagueInterface {
      *         or empty array if no points yet.
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException If the day is not within a valid week for the league.
+     * @throws InvalidDateException If the day is not within a valid week for the league.
      */
     public int[] getWeekPoints(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException{
@@ -799,7 +814,7 @@ public class GamesLeague implements GamesLeagueInterface {
      *         or empty array if no rankings yet.
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException     If the day is not within a valid week for the league.
+     * @throws InvalidDateException     If the day is not within a valid week for the league.
      */
     public int[] getWeekRanking(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException{
@@ -821,7 +836,7 @@ public class GamesLeague implements GamesLeagueInterface {
      *          CLOSED        ended all games played or month ended    
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException If the day is not within a valid month for the league.
+     * @throws InvalidDateException If the day is not within a valid month for the league.
      */
     public Status getMonthStatus(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException{
@@ -930,7 +945,7 @@ public class GamesLeague implements GamesLeagueInterface {
 
 
     /**
-     * Method empties this GamesLeaguePortal of its contents and resets all
+     * Method empties this GamesLeague instance of its contents and resets all
      * internal counters.
      */
     public void eraseGamesLeagueData(){
@@ -940,10 +955,10 @@ public class GamesLeague implements GamesLeagueInterface {
 
 
     /**
-     * Method saves this GamesLeaguePortal contents into a serialised file,
+     * Method saves this GamesLeague instance contents into a serialised file,
      * with the filename given in the argument.
      * <p>
-     * The state of this GamesLeaguePortal must be unchanged if any
+     * The state of this GamesLeague instance must be unchanged if any
      * exceptions are thrown.
      *
      * @param filename Location of the file to be saved.
@@ -957,7 +972,7 @@ public class GamesLeague implements GamesLeagueInterface {
 
 
     /**
-     * Method should load and replace this GamesLeaguePortal contents with the
+     * Method should load and replace this GamesLeague instance contents with the
      * serialised contents stored in the file given in the argument.
      *
      * @param filename Location of the file to be loaded.

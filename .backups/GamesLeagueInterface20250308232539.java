@@ -1,20 +1,23 @@
 package gamesleague;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
- * GamesLeague Class Template
- * You can use this template and add the correct method code.
- * At present it is a skeleton template with placeholder methods 
- * so that it can compile and implements all methods required by GamesLeagueInterface
+ * GamesLeagueInterface interface. Your submission should include
+ * a class GamesLeague that implements this class.
+ * It should include a no-argument constructor that initialises an empty GamesLeague
+ * with no initial users or leagues within it.
+ * 
  *
  * @author Philip Lewis
- * @version 0.3.2
+ * @version 0.3.1
  */
 
-public class GamesLeague implements GamesLeagueInterface {
 
+
+public interface GamesLeagueInterface extends Serializable {
 
     // Players
 
@@ -23,11 +26,7 @@ public class GamesLeague implements GamesLeagueInterface {
      *
      * @return An array of player IDs in the system or an empty array if none exists.
      */
-    public int[] getPlayerIds(){
-
-        
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getPlayerIds();
 
 
     /**
@@ -44,35 +43,25 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws InvalidEmailException If the email is null, empty, or does not contain an '@' character,
      * @throws IllegalEmailException if it duplicates an existing email of a player
      */
-    public int createPlayer(String email, String displayName, String name, String phone) 
+    int createPlayer(String email, String displayName, String name, String phone) 
         throws  InvalidEmailException,   
                 IllegalEmailException,
-                InvalidNameException {
-        
-
-        return 0; // placeholder so class compiles
-        }
+                InvalidNameException;
 
 
     /**
      * Permenantly deactivates player account.
      * <p>
      * Note to preserve the integrity of the league tables the removal process should follow:
-     * i) all personal player anonymised as below:
-     *     - name & displayName to "anonymousplayerX" where X is playerId
-     *     - email is set to "" and phone is set to ""
+     * i) all personal player anonymised with playerId placeholders
      * ii) all player gameplay reports are set to empty strings
-     * iii) player is set as inactive in all their league memberships
+     * iii) player is set to in in all league memberships
      *
      * @param playerId The ID of the player to be deactivated.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      * @throws IllegalOperationException If the player is the sole owner of a league.
      */
-    public void deactivatePlayer(int playerId) 
-        throws IDInvalidException, IllegalOperationException {
-
-        return; // placeholder so class compiles
-    };
+    void deactivatePlayer(int playerId) throws IDInvalidException, IllegalOperationException;
 
 
     /**
@@ -83,11 +72,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * 
      * @return true if player has been deactivated or false otherwise 
      */
-    public boolean isDeactivatedPlayer(int playerId) 
-        throws IDInvalidException{
-
-            return false; // placeholder so class compiles
-        };
+    boolean isDeactivatedPlayer(int playerId) throws IDInvalidException;
 
 
     /**
@@ -99,22 +84,16 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws InvalidNameException If the name is null, starts/ends with whitespace, 
      *                              is less than 1 characters or more than 20 characters.
      */
-    public void updatePlayerDisplayName(int playerId, String displayName) 
-        throws  IDInvalidException, InvalidNameException {
-        
-        return; // placeholder so class compiles
-    };
+    void updatePlayerDisplayName(int playerId, String displayName) 
+    throws  IDInvalidException, InvalidNameException;
 
     /**
      * Get the player id from the email.
      *
      * @param email The email of the player.
-     * @return The ID of the player in the system or -1 if the player does not exist.
+     * @return The ID of the player in the system or null if the player does not exist.
      */
-    public int getPlayerId(String email){
-        
-        return 0; // placeholder so class compiles
-    }
+    int getPlayerId(String email);
 
 
     /**
@@ -125,10 +104,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any player in the system.
      * 
      */
-    public String getPlayerDisplayName(int playerId) throws IDInvalidException{
-
-        return "";  // placeholder so class compiles
-    };
+    String getPlayerDisplayName(int playerId) throws IDInvalidException;
 
 
     /**
@@ -136,13 +112,10 @@ public class GamesLeague implements GamesLeagueInterface {
      * 
      * @param playerId The ID of the player being queried.
      * @return The email of the player.
-     * @throws IllegalEmailException If the email does not match to any player in the system.
+     * @throws IDInvalidException If the ID does not match to any player in the system.
      * 
      */
-    public String getPlayerEmail(int playerId) throws IllegalEmailException{
-        
-        return "";  // placeholder so class compiles
-    };
+    String getPlayerEmail(int playerId) throws IDInvalidException;
 
 
     /**
@@ -152,10 +125,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of league IDs the player is in or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    public int[] getPlayerLeagues(int playerId) throws IDInvalidException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getPlayerLeagues(int playerId) throws IDInvalidException;
 
 
     /** 
@@ -165,10 +135,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of league IDs the player owns or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    public int[] getPlayerOwnedLeagues(int playerId) throws IDInvalidException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getPlayerOwnedLeagues(int playerId) throws IDInvalidException;
 
     /**
      * Get the user's invites
@@ -177,10 +144,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of league IDs the player has invites to or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    public int[] getPlayerInvites(int playerId) throws IDInvalidException{
-        
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getPlayerInvites(int playerId) throws IDInvalidException;
 
 
     /**
@@ -191,10 +155,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return number of rounds played by the player.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    public int getPlayerRoundsPlayed(int playerId) throws IDInvalidException{
-
-        return 0; // placeholder so class compiles
-    };
+    int getPlayerRoundsPlayed(int playerId) throws IDInvalidException;
 
 
     /**
@@ -206,10 +167,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return percentage of rounds (0-100) played by the player across all leagues.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    public double getPlayerRoundsPercentage(int playerId) throws IDInvalidException{
-
-        return 0; // placeholder so class compiles
-    };
+    double getPlayerRoundsPercentage(int playerId) throws IDInvalidException;
 
     /**
      * Get the date that the user joined the site
@@ -218,10 +176,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return LocalDate that stores the date the player created their account.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    public LocalDate getPlayerJoinDate(int playerId) throws IDInvalidException{
-
-        return LocalDate.now(); // placeholder so class compiles
-    };
+    LocalDate getPlayerJoinDate(int playerId) throws IDInvalidException;
 
     // Leagues
 
@@ -230,15 +185,13 @@ public class GamesLeague implements GamesLeagueInterface {
      *
      * @return An array of leagues IDs in the system or an empty array if none exists.
      */
-    public int[] getLeagueIds(){
-        
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getLeagueIds();
 
     /**
      * Creates a league.
      * <p>
-     * 
+     * The state of this WordLeaguePortal must be unchanged if any
+     * exceptions are thrown.
      *
      * @param owner PlayerId of the league owner.
      * @param name The name of the league.
@@ -249,26 +202,18 @@ public class GamesLeague implements GamesLeagueInterface {
      *                              is less than 1 characters or more than 20 characters.
      * @throws IllegalNameException if it duplicates an existing league name
      */
-    public int createLeague(int owner, String name, GameType gameType ) 
-        throws  IDInvalidException, 
-                InvalidNameException, 
-                IllegalNameException{
-        
-        return 0;  // placeholder so class compiles
-    };
+    int createLeague(int owner, String name, GameType gameType ) throws IDInvalidException;
 
     /**
      * Removes a league and all associated game data from the system.
      * <p>
-     * 
+     * The state of this WordLeaguePortal must be unchanged if any
+     * exceptions are thrown.
      *
      * @param leagueId The ID of the league to be removed.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public void removeLeague(int leagueId) throws IDInvalidException{
-
-        return; // placeholder so class compiles
-    };
+    void removeLeague(int leagueId) throws IDInvalidException;
 
     /**
      * Get name of league
@@ -278,10 +223,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public String getLeagueName(int leagueId) throws IDInvalidException{
-        
-        return ""; // placeholder so class compiles
-    };
+    String getLeagueName(int leagueId) throws IDInvalidException;
 
     /**
      * Update the name of a league
@@ -294,13 +236,10 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalNameException if it duplicates an existing league name.
      * 
      */
-    public void updateLeagueName(int leagueId, String newName) 
+    void updateLeagueName(int leagueId, String newName) 
         throws IDInvalidException, 
                 InvalidNameException, 
-                IllegalNameException{
-
-        return; // placeholder so class compiles
-    };
+                IllegalNameException;
 
 
     /**
@@ -312,11 +251,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws InvalidEmailException If the email is null, empty, or does not contain an '@' character.
      */
-    public void invitePlayerToLeague(int leagueId, String email) 
-        throws IDInvalidException, InvalidEmailException{
-
-        return; // placeholder so class compiles
-    };
+    void invitePlayerToLeague(int leagueId, String email) 
+        throws IDInvalidException, InvalidEmailException;
 
     /**
      * Accepts an invite to a league.
@@ -327,11 +263,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws IllegalOperationException If the player email does not have an active invitation.
      */
-    public void acceptInviteToLeague(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void acceptInviteToLeague(int leagueId, int playerId) 
+        throws IDInvalidException, IllegalOperationException;
 
     /**
      * Removes invite from league
@@ -341,11 +274,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws IllegalEmailException If the email does not have an active invitation.
      */
-    public void removeInviteFromLeague(int leagueId, String email) 
-        throws IDInvalidException, IllegalEmailException{
-
-        return; // placeholder so class compiles
-    };
+    void removeInviteFromLeague(int leagueId, String email) 
+        throws IDInvalidException, IllegalEmailException;
 
 
     /**
@@ -355,10 +285,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of email addresses of players with pending invites or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public String[] getLeagueEmailInvites(int leagueId) throws IDInvalidException{
-
-        return new String[0]; // placeholder so class compiles
-    };
+    String[] getLeagueEmailInvites(int leagueId) throws IDInvalidException;
 
 
     /**
@@ -368,10 +295,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of player IDs who have pending invites or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public int[] getLeaguePlayerInvites(int leagueId) throws IDInvalidException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getLeaguePlayerInvites(int leagueId) throws IDInvalidException;
 
 
     /**
@@ -384,10 +308,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of player IDs in the league or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public int[] getLeaguePlayers(int leagueId) throws IDInvalidException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getLeaguePlayers(int leagueId) throws IDInvalidException;
 
 
     /**
@@ -397,40 +318,22 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of player IDs that are owners of the league or empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public int[] getLeagueOwners(int leagueId) throws IDInvalidException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getLeagueOwners(int leagueId) throws IDInvalidException;
 
     /**
-     * Get the status of a league. Your code should look at the current local date
-     * as epoch day and compare it with any start and end dates that have been set for the league
-     * Note that leagues are created without a specified start/end date
-     * 
-     *  - If the league has start date is in the future (or no start date specified)
-     *    the status should be PENDING
-     * 
-     *  - If the league has a specified start date in the past and 
-     *    a specified end date in the future (or no specified end date) then 
-     *    the status should be IN_PROGRESS
-     * 
-     *  - If the league has a specified end date in the past then
-     *    the status should be CLOSED
+     * Get the status of a league 
      * 
      * @param leagueId The ID of the league being queried.
+     * @param day The epoch day being queried.
      * 
-     * @return The status of the league as enum as above
-     *          PENDING       not yet started
-     *          IN_PROGRESS   league is active
-     *          CLOSED        current date is after specified league end date 
+     * @return The status of the league as enum
+     *          PENDING       not yet played
+     *          IN_PROGRESS   active 
+     *          CLOSED        ended  
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public Status getLeagueStatus(int leagueId ) 
-        throws IDInvalidException{
-        
-        return Status.PENDING; // placeholder so class compiles
-    };
+    Status getLeagueStatus(int leagueId ) throws IDInvalidException;
 
 
     /**
@@ -441,11 +344,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalOperationException If the league is already started.
      */
-    public void setLeagueStartDate(int leagueId, int  day) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void setLeagueStartDate(int leagueId, int  day) 
+        throws IDInvalidException, IllegalOperationException;
 
 
     /** 
@@ -456,11 +356,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalOperationException If the league is already closed or invalid day.
      */
-    public void setLeagueEndDate(int leagueId, int day) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void setLeagueEndDate(int leagueId, int day) throws IDInvalidException;
 
 
     /**
@@ -470,10 +366,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The start date of the league as epoch day.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public int getLeagueStartDate(int leagueId) throws IDInvalidException{
-        
-        return 0; // placeholder so class compiles
-    };
+    int getLeagueStartDate(int leagueId) throws IDInvalidException;
 
 
     /**
@@ -483,10 +376,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The closure date of the league as epoch day or -1 if not closed.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public int getLeagueCloseDate(int leagueId) throws IDInvalidException{
-
-        return 0; // placeholder so class compiles
-    };
+    int getLeagueCloseDate(int leagueId) throws IDInvalidException;
 
 
     /**
@@ -497,10 +387,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public void resetLeague(int leagueId) throws IDInvalidException{
-        
-        return; // placeholder so class compiles
-    };
+    void resetLeague(int leagueId) throws IDInvalidException;
 
 
     /**
@@ -515,11 +402,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalNameException If the new name already exists in the platform.
      */
-    public int cloneLeague(int leagueId, String newName) 
-        throws IDInvalidException, IllegalNameException{
-        
-        return 0; // placeholder so class compiles
-    };
+    int cloneLeague(int leagueId, String newName) throws IDInvalidException;
 
 
     /**
@@ -528,13 +411,11 @@ public class GamesLeague implements GamesLeagueInterface {
      * @param leagueId The ID of the league.
      * @param playerId The ID of the player.
      * 
-     * @throws IDInvalidException If the ID does not match to any league or player in the league.
+     * @throws IDInvalidException If the ID does not match to any league or player in the system.
+     * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
-    public boolean isLeaguePlayerActive(int leagueId, int playerId) 
-        throws IDInvalidException{
-
-        return false; // placeholder so class compiles
-    };
+    boolean isLeaguePlayerActive(int leagueId, int playerId) 
+        throws IDInvalidException, IllegalArgumentException;
 
     /** 
      * Sets a player to be registered as inactive in the league.
@@ -545,11 +426,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
-    public void setLeaguePlayerInactive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalOperationException {
-
-        return; // placeholder so class compiles
-    };
+    void setLeaguePlayerInactive(int leagueId, int playerId) 
+        throws IDInvalidException, IllegalArgumentException;
 
     /** 
      * Sets a player to be registered as active in the league.
@@ -560,11 +438,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
-    public void setLeaguePlayerActive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void setLeaguePlayerActive(int leagueId, int playerId) 
+        throws IDInvalidException, IllegalArgumentException;
 
 
     /** 
@@ -577,11 +452,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalOperationException If the player is not a member of the league.
      * 
      */
-    public void addOwner(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void addOwner(int leagueId, int playerId) 
+        throws IDInvalidException, IllegalOperationException;
 
     /** 
      * Remove owner
@@ -593,11 +465,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalOperationException If the process would leave the league without an owner.
      * 
      */
-    public void removeOwner(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void removeOwner(int leagueId, int playerId) 
+        throws IDInvalidException, IllegalOperationException;
 
 
     // Results
@@ -615,11 +484,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If ID do not match to any league & player in the system.
      * @throws IllegalOperationException If the day is not a valid day for the league.
      */
-    public void registerGameReport(int day, int leagueId,  int playerId, String gameReport ) 
-        throws IDInvalidException, IllegalOperationException{
-
-        return; // placeholder so class compiles
-    };
+    void registerGameReport(int day, int leagueId,  int playerId, String gameReport ) 
+        throws IDInvalidException, IllegalOperationException;
 
 
     /** 
@@ -634,11 +500,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
      */
-    public String getGameReport(int day, int leagueId,  int playerId) 
-        throws IDInvalidException, InvalidDateException{
-
-        return ""; // placeholder so class compiles
-    };
+    String getGameReport(int day, int leagueId,  int playerId) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -653,11 +516,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalArgumentException If the day specified has already been closed,
      *                                  or if current date is 2 days or more after the day being voided.
      */
-    public void registerDayScores(int day, int leagueId, int[] scores) 
-        throws IDInvalidException, IllegalArgumentException{
-
-        return; // placeholder so class compiles
-    };
+    void registerDayScores(int day, int leagueId, int[] scores) 
+        throws IDInvalidException, IllegalArgumentException;
 
 
     /**
@@ -670,11 +530,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalArgumentException If the day is not a valid day for the league,
      *                 or the current day is 2 days or more after the day being voided.
      */
-    public void voidDayPoints(int day, int leagueId) 
-        throws IDInvalidException, IllegalArgumentException{
-
-        return; // placeholder so class compiles
-    };  
+    void voidDayPoints(int day, int leagueId) 
+        throws IDInvalidException, IllegalArgumentException;  
 
 
     /**
@@ -686,16 +543,13 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The status of the day as enum
      *          PENDING       no gameplay yet
      *          IN_PROGRESS   active and still games to play
-     *          CLOSED        when all players have played or day has ended   
+     *          CLOSED        ended all games played or month ended   
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
      */
-    public Status getDayStatus(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return Status.PENDING; // placeholder so class compiles
-    };
+    Status getDayStatus(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -712,11 +566,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
      */
-    public int[] getDayScores(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getDayScores(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -732,11 +583,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
      */
-    public int[] getDayPoints(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getDayPoints(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -752,11 +600,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
      */
-    public int[] getDayRanking(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getDayRanking(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -771,13 +616,10 @@ public class GamesLeague implements GamesLeagueInterface {
      *          CLOSED        ended all games played or week ended    
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     * @throws InvalidDateException If the day is not within a valid week for the league.
+     *         InvalidDateException If the day is not within a valid week for the league.
      */
-    public Status getWeekStatus(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return Status.PENDING; // placeholder so class compiles
-    };
+    Status getWeekStatus(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -791,13 +633,10 @@ public class GamesLeague implements GamesLeagueInterface {
      *         or empty array if no points yet.
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     * @throws InvalidDateException If the day is not within a valid week for the league.
+     *         InvalidDateException If the day is not within a valid week for the league.
      */
-    public int[] getWeekPoints(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getWeekPoints(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -811,13 +650,10 @@ public class GamesLeague implements GamesLeagueInterface {
      *         or empty array if no rankings yet.
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     * @throws InvalidDateException     If the day is not within a valid week for the league.
+     *         InvalidDateException     If the day is not within a valid week for the league.
      */
-    public int[] getWeekRanking(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getWeekRanking(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -833,13 +669,10 @@ public class GamesLeague implements GamesLeagueInterface {
      *          CLOSED        ended all games played or month ended    
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     * @throws InvalidDateException If the day is not within a valid month for the league.
+     *         InvalidDateException If the day is not within a valid month for the league.
      */
-    public Status getMonthStatus(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return Status.PENDING; // placeholder so class compiles
-    };
+    Status getMonthStatus(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -855,11 +688,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not within a valid month for the league.
      */
-    public int[] getMonthPoints(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getMonthPoints(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -874,11 +704,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException     If the day is not within a valid month for the league.
      */
-    public int[] getMonthRanking(int leagueId, int day ) 
-            throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getMonthRanking(int leagueId, int day ) 
+            throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -896,11 +723,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not within a valid year for the league.
      */
-    public Status getYearStatus(int leagueId, int day ) 
-            throws IDInvalidException, InvalidDateException{
-
-        return Status.PENDING; // placeholder so class compiles
-    };
+    Status getYearStatus(int leagueId, int day ) 
+            throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -915,11 +739,8 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not within a valid month for the league.
      */
-    public int[] getYearPoints(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getYearPoints(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
@@ -934,42 +755,33 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException   If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not within a valid year for the league.
      **/
-    public int[] getYearRanking(int leagueId, int day ) 
-        throws IDInvalidException, InvalidDateException{
-
-        return new int[0]; // placeholder so class compiles
-    };
+    int[] getYearRanking(int leagueId, int day ) 
+        throws IDInvalidException, InvalidDateException;
 
 
     /**
-     * Method empties this GamesLeague instance of its contents and resets all
+     * Method empties this GamesLeaguePortal of its contents and resets all
      * internal counters.
      */
-    public void eraseGamesLeagueData(){
-
-        return; // placeholder so class compiles
-    };
+    void eraseGamesLeagueData();
 
 
     /**
-     * Method saves this GamesLeague instance contents into a serialised file,
+     * Method saves this GamesLeaguePortal contents into a serialised file,
      * with the filename given in the argument.
      * <p>
-     * The state of this GamesLeague instance must be unchanged if any
+     * The state of this GamesLeaguePortal must be unchanged if any
      * exceptions are thrown.
      *
      * @param filename Location of the file to be saved.
      * @throws IOException If there is a problem experienced when trying to save the 
      *                     contents to the file.
      */
-    public void saveGamesLeagueData(String filename) throws IOException{
-
-        return; // placeholder so class compiles
-    };
+    void saveGamesLeagueData(String filename) throws IOException;
 
 
     /**
-     * Method should load and replace this GamesLeague instance contents with the
+     * Method should load and replace this GamesLeaguePortal contents with the
      * serialised contents stored in the file given in the argument.
      *
      * @param filename Location of the file to be loaded.
@@ -977,12 +789,8 @@ public class GamesLeague implements GamesLeagueInterface {
      *                     to load the store contents from the file.
      * @throws ClassNotFoundException If required class files cannot be found when loading.
      */
-    public void loadGamesLeagueData(String filename) throws IOException, ClassNotFoundException{
+    void loadGamesLeagueData(String filename) throws IOException, ClassNotFoundException;
 
-        return; // placeholder so class compiles
-    };
-
+    }
 
 
-
-}

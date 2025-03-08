@@ -12,7 +12,7 @@ import java.time.LocalDate;
  * 
  *
  * @author Philip Lewis
- * @version 0.3.1
+ * @version 0.3.2
  */
 
 
@@ -53,15 +53,18 @@ public interface GamesLeagueInterface extends Serializable {
      * Permenantly deactivates player account.
      * <p>
      * Note to preserve the integrity of the league tables the removal process should follow:
-     * i) all personal player anonymised with playerId placeholders
+     * i) all personal player anonymised as below:
+     *     - name & displayName to "anonymousplayerX" where X is playerId
+     *     - email is set to "" and phone is set to ""
      * ii) all player gameplay reports are set to empty strings
-     * iii) player is set to in in all league memberships
+     * iii) player is set as inactive in all their league memberships
      *
      * @param playerId The ID of the player to be deactivated.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      * @throws IllegalOperationException If the player is the sole owner of a league.
      */
-    void deactivatePlayer(int playerId) throws IDInvalidException, IllegalOperationException;
+    void deactivatePlayer(int playerId) 
+        throws IDInvalidException, IllegalOperationException;
 
 
     /**
@@ -72,7 +75,8 @@ public interface GamesLeagueInterface extends Serializable {
      * 
      * @return true if player has been deactivated or false otherwise 
      */
-    boolean isDeactivatedPlayer(int playerId) throws IDInvalidException;
+    boolean isDeactivatedPlayer(int playerId) 
+        throws IDInvalidException;
 
 
     /**
@@ -85,13 +89,13 @@ public interface GamesLeagueInterface extends Serializable {
      *                              is less than 1 characters or more than 20 characters.
      */
     void updatePlayerDisplayName(int playerId, String displayName) 
-    throws  IDInvalidException, InvalidNameException;
+        throws  IDInvalidException, InvalidNameException;
 
     /**
      * Get the player id from the email.
      *
      * @param email The email of the player.
-     * @return The ID of the player in the system or null if the player does not exist.
+     * @return The ID of the player in the system or -1 if the player does not exist.
      */
     int getPlayerId(String email);
 
@@ -104,7 +108,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @throws IDInvalidException If the ID does not match to any player in the system.
      * 
      */
-    String getPlayerDisplayName(int playerId) throws IDInvalidException;
+    String getPlayerDisplayName(int playerId) 
+        throws IDInvalidException;
 
 
     /**
@@ -115,7 +120,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @throws IDInvalidException If the ID does not match to any player in the system.
      * 
      */
-    String getPlayerEmail(int playerId) throws IDInvalidException;
+    String getPlayerEmail(int playerId) 
+        throws IDInvalidException;
 
 
     /**
@@ -125,7 +131,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of league IDs the player is in or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    int[] getPlayerLeagues(int playerId) throws IDInvalidException;
+    int[] getPlayerLeagues(int playerId) 
+        throws IDInvalidException;
 
 
     /** 
@@ -135,7 +142,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of league IDs the player owns or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    int[] getPlayerOwnedLeagues(int playerId) throws IDInvalidException;
+    int[] getPlayerOwnedLeagues(int playerId) 
+        throws IDInvalidException;
 
     /**
      * Get the user's invites
@@ -144,7 +152,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of league IDs the player has invites to or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    int[] getPlayerInvites(int playerId) throws IDInvalidException;
+    int[] getPlayerInvites(int playerId) 
+        throws IDInvalidException;
 
 
     /**
@@ -155,7 +164,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return number of rounds played by the player.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    int getPlayerRoundsPlayed(int playerId) throws IDInvalidException;
+    int getPlayerRoundsPlayed(int playerId)  
+        throws IDInvalidException;
 
 
     /**
@@ -167,7 +177,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return percentage of rounds (0-100) played by the player across all leagues.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    double getPlayerRoundsPercentage(int playerId) throws IDInvalidException;
+    double getPlayerRoundsPercentage(int playerId) 
+        throws IDInvalidException;
 
     /**
      * Get the date that the user joined the site
@@ -176,7 +187,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return LocalDate that stores the date the player created their account.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
-    LocalDate getPlayerJoinDate(int playerId) throws IDInvalidException;
+    LocalDate getPlayerJoinDate(int playerId) 
+        throws IDInvalidException;
 
     // Leagues
 
@@ -189,9 +201,6 @@ public interface GamesLeagueInterface extends Serializable {
 
     /**
      * Creates a league.
-     * <p>
-     * The state of this WordLeaguePortal must be unchanged if any
-     * exceptions are thrown.
      *
      * @param owner PlayerId of the league owner.
      * @param name The name of the league.
@@ -202,18 +211,19 @@ public interface GamesLeagueInterface extends Serializable {
      *                              is less than 1 characters or more than 20 characters.
      * @throws IllegalNameException if it duplicates an existing league name
      */
-    int createLeague(int owner, String name, GameType gameType ) throws IDInvalidException;
+    int createLeague(int owner, String name, GameType gameType ) 
+        throws  IDInvalidException,
+                InvalidNameException, 
+                IllegalNameException;   
 
     /**
      * Removes a league and all associated game data from the system.
-     * <p>
-     * The state of this WordLeaguePortal must be unchanged if any
-     * exceptions are thrown.
      *
      * @param leagueId The ID of the league to be removed.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    void removeLeague(int leagueId) throws IDInvalidException;
+    void removeLeague(int leagueId) 
+        throws IDInvalidException;
 
     /**
      * Get name of league
@@ -223,7 +233,8 @@ public interface GamesLeagueInterface extends Serializable {
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    String getLeagueName(int leagueId) throws IDInvalidException;
+    String getLeagueName(int leagueId) 
+        throws IDInvalidException;
 
     /**
      * Update the name of a league
@@ -285,7 +296,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of email addresses of players with pending invites or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    String[] getLeagueEmailInvites(int leagueId) throws IDInvalidException;
+    String[] getLeagueEmailInvites(int leagueId) 
+        throws IDInvalidException;
 
 
     /**
@@ -295,7 +307,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of player IDs who have pending invites or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    int[] getLeaguePlayerInvites(int leagueId) throws IDInvalidException;
+    int[] getLeaguePlayerInvites(int leagueId) 
+        throws IDInvalidException;
 
 
     /**
@@ -308,7 +321,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of player IDs in the league or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    int[] getLeaguePlayers(int leagueId) throws IDInvalidException;
+    int[] getLeaguePlayers(int leagueId) 
+        throws IDInvalidException;
 
 
     /**
@@ -318,22 +332,35 @@ public interface GamesLeagueInterface extends Serializable {
      * @return An array of player IDs that are owners of the league or empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    int[] getLeagueOwners(int leagueId) throws IDInvalidException;
+    int[] getLeagueOwners(int leagueId) 
+        throws IDInvalidException;
 
     /**
-     * Get the status of a league 
+     * Get the status of a league. Your code should look at the current local date
+     * as epoch day and compare it with any start and end dates that have been set for the league
+     * Note that leagues are created without a specified start/end date
+     * 
+     *  - If the league has start date is in the future (or no start date specified)
+     *    the status should be PENDING
+     * 
+     *  - If the league has a specified start date in the past and 
+     *    a specified end date in the future (or no specified end date) then 
+     *    the status should be IN_PROGRESS
+     * 
+     *  - If the league has a specified end date in the past then
+     *    the status should be CLOSED
      * 
      * @param leagueId The ID of the league being queried.
-     * @param day The epoch day being queried.
      * 
-     * @return The status of the league as enum
-     *          PENDING       not yet played
-     *          IN_PROGRESS   active 
-     *          CLOSED        ended  
+     * @return The status of the league as enum as above
+     *          PENDING       not yet started
+     *          IN_PROGRESS   league is active
+     *          CLOSED        current date is after specified league end date 
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    Status getLeagueStatus(int leagueId ) throws IDInvalidException;
+    Status getLeagueStatus(int leagueId ) 
+        throws IDInvalidException;
 
 
     /**
@@ -356,7 +383,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalOperationException If the league is already closed or invalid day.
      */
-    void setLeagueEndDate(int leagueId, int day) throws IDInvalidException;
+    void setLeagueEndDate(int leagueId, int day) 
+        throws IDInvalidException, IllegalOperationException;
 
 
     /**
@@ -402,7 +430,8 @@ public interface GamesLeagueInterface extends Serializable {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalNameException If the new name already exists in the platform.
      */
-    int cloneLeague(int leagueId, String newName) throws IDInvalidException;
+    int cloneLeague(int leagueId, String newName) 
+        throws IDInvalidException, IllegalNameException;
 
 
     /**
@@ -411,8 +440,7 @@ public interface GamesLeagueInterface extends Serializable {
      * @param leagueId The ID of the league.
      * @param playerId The ID of the player.
      * 
-     * @throws IDInvalidException If the ID does not match to any league or player in the system.
-     * @throws IllegalOperationException If the ID does not match to any player in the league.
+     * @throws IDInvalidException If the ID does not match to any league or player in the league.
      */
     boolean isLeaguePlayerActive(int leagueId, int playerId) 
         throws IDInvalidException, IllegalArgumentException;
@@ -427,7 +455,7 @@ public interface GamesLeagueInterface extends Serializable {
      * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
     void setLeaguePlayerInactive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalArgumentException;
+        throws IDInvalidException, IllegalOperationException;
 
     /** 
      * Sets a player to be registered as active in the league.
@@ -439,7 +467,7 @@ public interface GamesLeagueInterface extends Serializable {
      * @throws IllegalOperationException If the ID does not match to any player in the league.
      */
     void setLeaguePlayerActive(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalArgumentException;
+        throws IDInvalidException, IllegalOperationException;
 
 
     /** 
@@ -522,7 +550,8 @@ public interface GamesLeagueInterface extends Serializable {
 
     /**
      * Register a void day for a league - all points set to zero
-     *
+     * This process cannot be undone.
+     * 
      * @param leagueId The ID of the league being queried.
      * @param playerId The ID of the league being queried.
      * @param day The epoch day being queried.
@@ -543,7 +572,7 @@ public interface GamesLeagueInterface extends Serializable {
      * @return The status of the day as enum
      *          PENDING       no gameplay yet
      *          IN_PROGRESS   active and still games to play
-     *          CLOSED        ended all games played or month ended   
+     *          CLOSED        gameplay ended as all games played or day ended   
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
@@ -616,7 +645,7 @@ public interface GamesLeagueInterface extends Serializable {
      *          CLOSED        ended all games played or week ended    
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException If the day is not within a valid week for the league.
+     * @throws InvalidDateException If the day is not within a valid week for the league.
      */
     Status getWeekStatus(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException;
@@ -633,7 +662,7 @@ public interface GamesLeagueInterface extends Serializable {
      *         or empty array if no points yet.
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException If the day is not within a valid week for the league.
+     * @throws InvalidDateException If the day is not within a valid week for the league.
      */
     int[] getWeekPoints(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException;
@@ -650,7 +679,7 @@ public interface GamesLeagueInterface extends Serializable {
      *         or empty array if no rankings yet.
      * 
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException     If the day is not within a valid week for the league.
+     * @throws InvalidDateException     If the day is not within a valid week for the league.
      */
     int[] getWeekRanking(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException;
@@ -669,7 +698,7 @@ public interface GamesLeagueInterface extends Serializable {
      *          CLOSED        ended all games played or month ended    
      *  
      * @throws IDInvalidException If the ID does not match to any league in the system.
-     *         InvalidDateException If the day is not within a valid month for the league.
+     * @throws InvalidDateException If the day is not within a valid month for the league.
      */
     Status getMonthStatus(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException;
@@ -760,18 +789,15 @@ public interface GamesLeagueInterface extends Serializable {
 
 
     /**
-     * Method empties this GamesLeaguePortal of its contents and resets all
+     * Method empties this GamesLeague instance of its contents and resets all
      * internal counters.
      */
     void eraseGamesLeagueData();
 
 
     /**
-     * Method saves this GamesLeaguePortal contents into a serialised file,
+     * Method saves the GamesLeague instance and data into a serialised file,
      * with the filename given in the argument.
-     * <p>
-     * The state of this GamesLeaguePortal must be unchanged if any
-     * exceptions are thrown.
      *
      * @param filename Location of the file to be saved.
      * @throws IOException If there is a problem experienced when trying to save the 
@@ -781,8 +807,8 @@ public interface GamesLeagueInterface extends Serializable {
 
 
     /**
-     * Method should load and replace this GamesLeaguePortal contents with the
-     * serialised contents stored in the file given in the argument.
+     * Method should load and replace the contents of this GamesLeague instance
+     * with the serialised contents stored in the file given in the argument.
      *
      * @param filename Location of the file to be loaded.
      * @throws IOException If there is a problem experienced when trying
@@ -792,5 +818,3 @@ public interface GamesLeagueInterface extends Serializable {
     void loadGamesLeagueData(String filename) throws IOException, ClassNotFoundException;
 
     }
-
-
