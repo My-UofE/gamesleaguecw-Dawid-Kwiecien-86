@@ -1,6 +1,6 @@
 package gamesleague;
 
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 
 /**
@@ -25,11 +25,10 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of player IDs in the system or an empty array if none exists.
      */
     public int[] getPlayerIds(){
-
+        int[] playerIDs = new int[0];
         
-        return new int[0]; // placeholder so class compiles
+        return playerIDs; // returns empty array because no IDs exist
     };
-
 
     /**
      * Creates a player entry.
@@ -45,15 +44,18 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws InvalidEmailException If the email is null, empty, or does not contain an '@' character,
      * @throws IllegalEmailException if it duplicates an existing email of a player
      */
-    public int createPlayer(String email, String displayName, String name, String phone) 
-        throws  InvalidEmailException,   
-                IllegalEmailException,
-                InvalidNameException {
+    public int createPlayer(String email, String displayName, String name, String phone) throws InvalidEmailException, IllegalEmailException, InvalidNameException {
         
 
         return 0; // placeholder so class compiles
         }
 
+    public static void main(String[] args) {
+        GamesLeague league = new GamesLeague();
+        for (int id : league.getPlayerIds()) {
+            System.out.println(id);
+        }
+    }
 
     /**
      * Permenantly deactivates player account.
