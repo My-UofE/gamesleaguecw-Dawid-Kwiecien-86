@@ -138,8 +138,22 @@ public class GamesLeague implements GamesLeagueInterface {
     public void updatePlayerDisplayName(int playerId, String displayName)
         throws  IDInvalidException, InvalidNameException {
 
-        return; // placeholder so class compiles
-    };
+        displayName = displayName.trim();
+        if (displayName.isEmpty() || displayName.length() < 1 || displayName.length() > 20) {
+            throw new InvalidNameException("The display name entered is invalid, please try again");
+        }
+
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players) {
+            if(p.getId() == playerId) {
+                p.setDisplayName(displayName);
+                Player.serialisePlayers(players);
+                return;
+            }
+        }
+
+        throw new IDInvalidException("ID does not match to any player in the system");
+    }
 
     /**
      * Get the player id from the email.
@@ -148,8 +162,14 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The ID of the player in the system or -1 if the player does not exist.
      */
     public int getPlayerId(String email){
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players){
+            if(p.getEmail().equals(email)) {
+                return p.getId();
+            }
+        }
 
-        return 0; // placeholder so class compiles
+        return -1;
     }
 
 
@@ -162,9 +182,15 @@ public class GamesLeague implements GamesLeagueInterface {
      *
      */
     public String getPlayerDisplayName(int playerId) throws IDInvalidException{
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players) {
+            if(p.getId() == playerId) {
+                return p.getDisplayName();
 
-        return "";  // placeholder so class compiles
-    };
+            }
+        }
+        throw new IDInvalidException("ID does not match any player in the system");
+    }
 
 
     /**
@@ -177,8 +203,14 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public String getPlayerEmail(int playerId) throws IllegalEmailException{
 
-        return "";  // placeholder so class compiles
-    };
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players) {
+            if(p.getId() == playerId) {
+                return p.getEmail();
+            }
+        }
+        throw new IllegalEmailException("ID does not match to any email in the system");
+    }
 
 
     /**
@@ -256,7 +288,13 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public LocalDate getPlayerJoinDate(int playerId) throws IDInvalidException{
 
-        return LocalDate.now(); // placeholder so class compiles
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players) {
+            if(p.getId() == playerId) {
+                return p.getJoinDate();
+            }
+        }
+        throw new IDInvalidException("ID does not match to any player in the system");
     };
 
     // Leagues

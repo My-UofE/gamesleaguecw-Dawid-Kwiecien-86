@@ -3,6 +3,7 @@ package TestSystem;
 import gamesleague.*;
 
 import java.util.List;
+import java.time.LocalDate;
 
 public class TestPlayerApp {
     public static void main(String[] args) {
@@ -69,7 +70,8 @@ public class TestPlayerApp {
             List<Player> players = Player.getPlayers();
             System.out.println("\nStored Players:");
             for (Player p : players) {
-                System.out.println("Player ID: " + p.getId() + ", Email: " + p.getEmail() + ", Name: " + p.getName());
+                System.out.println("Player ID: " + p.getId() + ", Email: " + p.getEmail() + ", Name: " + p.getName()
+                        + ", Display Name: " + p.getDisplayName() + ", Join Date: " + p.getJoinDate());
             }
 
         } catch (Exception e) {
@@ -86,6 +88,72 @@ public class TestPlayerApp {
 
         } catch (Exception e) {
             System.out.println("Error while fetching player IDs: " + e.getMessage());
+        }
+
+
+        // test getPlayerId
+        try {
+            int id = league.getPlayerId("player1@example.com");
+            System.out.println("\nRetrieved Player ID for player1@example.com: " + id);
+        } catch (Exception e) {
+            System.out.println("Error while retrieving player ID: " + e.getMessage());
+        }
+
+        // test getPlayerDisplayName
+        try {
+            String displayName = league.getPlayerDisplayName(0);
+            System.out.println("Retrieved display name for Player ID 0: " + displayName);
+        } catch (Exception e) {
+            System.out.println("Error while retrieving display name: " + e.getMessage());
+        }
+
+        // test getPlayerEmail
+        try {
+            String email = league.getPlayerEmail(1);
+            System.out.println("Retrieved email for Player ID 1: " + email);
+        } catch (Exception e) {
+            System.out.println("Error while retrieving player email: " + e.getMessage());
+        }
+
+        // test getJoinDate
+        try {
+            LocalDate joinDate = league.getPlayerJoinDate(1);
+            System.out.println("Retrieved join date for Player ID 1: " + joinDate);
+        } catch (Exception e) {
+            System.out.println("Error while retrieving player join date: " + e.getMessage());
+        }
+
+        // test updatePlayerDisplayName
+        try {
+            int playerId = league.getPlayerId("player1@example.com"); // Get ID of an existing player
+            league.updatePlayerDisplayName(playerId, "PlayerOne");
+            System.out.println("\nUpdated display name for Player ID " + playerId + " to 'PlayerOne'");
+
+            // Verify the update
+            String updatedName = league.getPlayerDisplayName(playerId);
+            System.out.println("Retrieved Updated Display Name: " + updatedName);
+
+            if (updatedName.equals("PlayerOne")) {
+                System.out.println("Test Passed: Display name successfully updated.");
+            } else {
+                System.out.println("Test Failed: Display name did not update correctly.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error during update test: " + e.getMessage());
+        }
+
+        // display stored players again
+        try {
+            List<Player> players = Player.getPlayers();
+            System.out.println("\nStored Players after UpdateDisplayName:");
+            for (Player p : players) {
+                System.out.println("Player ID: " + p.getId() + ", Email: " + p.getEmail() + ", Name: " + p.getName()
+                        + ", Display Name: " + p.getDisplayName() + ", Join Date: " + p.getJoinDate());
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error while fetching players: " + e.getMessage());
         }
 
         System.out.println("Player Tests Complete.");

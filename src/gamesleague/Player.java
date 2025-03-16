@@ -2,6 +2,7 @@ package gamesleague;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.time.LocalDate;
 
 public class Player implements Serializable {
 
@@ -10,12 +11,15 @@ public class Player implements Serializable {
     private String displayName;
     private String name;
     private String phone;
+    private LocalDate joinDate;
 
     public Player(String email, String displayName, String name) {
         this.email = email;
         this.displayName = displayName;
         this.name = name;
-        setId(); // assigns the current player with the next available ID
+        this.joinDate = LocalDate.now();
+        setId();
+
 
     }
 
@@ -24,6 +28,7 @@ public class Player implements Serializable {
         this.displayName = displayName;
         this.name = name;
         this.phone = phone;
+        this.joinDate = LocalDate.now();
         setId();
     }
 
@@ -109,6 +114,10 @@ public class Player implements Serializable {
     public void setPhone(String phone) {
         this.phone = phone;
         serialisePlayers(getPlayers());
+    }
+
+    public LocalDate getJoinDate() {
+        return this.joinDate;
     }
 
 }
