@@ -16,7 +16,7 @@ public class Player implements Serializable {
         this.displayName = displayName;
         this.name = name;
         setId(); // assigns the current player with the next available ID
-        addPlayerToList(this); // adds the current player to a list of all players
+
     }
 
     public Player(String email, String displayName, String name, String phone) {
@@ -25,10 +25,9 @@ public class Player implements Serializable {
         this.name = name;
         this.phone = phone;
         setId();
-        addPlayerToList(this);
     }
 
-    public void addPlayerToList(Player player) {
+    public void addPlayerToList() {
         ArrayList<Player> playerList = getPlayers();
         playerList.add(this);
         serialisePlayers(playerList); // serialising new list of players containing the current player into memory
@@ -61,7 +60,19 @@ public class Player implements Serializable {
 
     // IDs are allocated automatically; should not be used for reassignment
     private void setId() {
-        this.id = getPlayers().size(); // The next available ID is the size of the list of all players
+        ArrayList<Player> players = getPlayers();
+
+        if (players.isEmpty()) {
+            this.id = 0; // start from 0 if no players exist
+        } else {
+            int maxId = 0;
+            for (Player p : players) {
+                if (p.getId() > maxId) {
+                    maxId = p.getId();
+                }
+            }
+            this.id = maxId + 1;
+        }
     }
 
     public String getEmail() {

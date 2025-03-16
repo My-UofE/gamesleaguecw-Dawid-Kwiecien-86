@@ -2,6 +2,7 @@ package gamesleague;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 /**
  * GamesLeague Class Template
@@ -25,10 +26,14 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of player IDs in the system or an empty array if none exists.
      */
     public int[] getPlayerIds(){
-        int[] playerIDs = new int[0];
-        
-        return playerIDs; // returns empty array because no IDs exist
-    };
+        ArrayList<Player> players = Player.getPlayers();
+        int[] playerIDs = new int[players.size()];
+
+        for (int i = 0; i < players.size(); i++) {
+            playerIDs[i] = players.get(i).getId();
+        }
+        return playerIDs;
+    }
 
     /**
      * Creates a player entry.
@@ -38,17 +43,45 @@ public class GamesLeague implements GamesLeagueInterface {
      * @param name The name of the player.
      * @param phone The contact phone number of the player or empty string.
      * @return The ID of the rider in the system.
-     * @throws InvalidNameException If the displayName/name is null or starts/ends with whitespace, 
+     * @throws InvalidNameException If the displayName/name is null or starts/ends with whitespace,
      *                              or if the name is less than 5 char / more than 50 char.
      *                              or if displayName is less than 1 char/more than 20 char.
      * @throws InvalidEmailException If the email is null, empty, or does not contain an '@' character,
      * @throws IllegalEmailException if it duplicates an existing email of a player
      */
     public int createPlayer(String email, String displayName, String name, String phone) throws InvalidEmailException, IllegalEmailException, InvalidNameException {
-        
 
-        return 0; // placeholder so class compiles
+        // trim to get rid of leading and trailing white space
+        email = email.trim();
+        displayName = displayName.trim();
+        name = name.trim();
+
+        if (email == null || email.isEmpty() || !email.contains("@")) {
+            throw new InvalidEmailException("The email entered is invalid. Please try again");
         }
+
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players) {
+            if(p.getEmail().equalsIgnoreCase(email)){
+                throw new IllegalEmailException("The email entered is already in use. Please try again.");
+            }
+        }
+
+        if (displayName.isEmpty() || displayName.length() < 1 || displayName.length() > 20) {
+            throw new InvalidNameException("The display name entered is invalid, please try again");
+        }
+
+        if (name.isEmpty() || name.length() < 5 || name.length() > 50) {
+            throw new InvalidNameException("The name entered is invalid. Please try again");
+        }
+
+
+        // once all validation checks are passed, create new player object
+        Player player = new Player(email, displayName, name, phone);
+        player.addPlayerToList();
+        return player.getId();
+    }
+
 
     public static void main(String[] args) {
         GamesLeague league = new GamesLeague();
@@ -71,7 +104,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any player in the system.
      * @throws IllegalOperationException If the player is the sole owner of a league.
      */
-    public void deactivatePlayer(int playerId) 
+    public void deactivatePlayer(int playerId)
         throws IDInvalidException, IllegalOperationException {
 
         return; // placeholder so class compiles
@@ -80,13 +113,13 @@ public class GamesLeague implements GamesLeagueInterface {
 
     /**
      * Check if a player has been deactivated.
-     * 
+     *
      * @param playerId The ID of the player.
      * @throws IDInvalidException If the ID does not match to any player in the system.
-     * 
-     * @return true if player has been deactivated or false otherwise 
+     *
+     * @return true if player has been deactivated or false otherwise
      */
-    public boolean isDeactivatedPlayer(int playerId) 
+    public boolean isDeactivatedPlayer(int playerId)
         throws IDInvalidException{
 
             return false; // placeholder so class compiles
@@ -95,16 +128,16 @@ public class GamesLeague implements GamesLeagueInterface {
 
     /**
      * Updates the player's display name.
-     * 
+     *
      * @param playerId The ID of the player to be updated.
      * @param displayName The new display name of the player.
      * @throws IDInvalidException If the ID does not match to any player in the system.
-     * @throws InvalidNameException If the name is null, starts/ends with whitespace, 
+     * @throws InvalidNameException If the name is null, starts/ends with whitespace,
      *                              is less than 1 characters or more than 20 characters.
      */
-    public void updatePlayerDisplayName(int playerId, String displayName) 
+    public void updatePlayerDisplayName(int playerId, String displayName)
         throws  IDInvalidException, InvalidNameException {
-        
+
         return; // placeholder so class compiles
     };
 
@@ -115,18 +148,18 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The ID of the player in the system or -1 if the player does not exist.
      */
     public int getPlayerId(String email){
-        
+
         return 0; // placeholder so class compiles
     }
 
 
     /**
      * Get the player's display name.
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return The display name of the player.
      * @throws IDInvalidException If the ID does not match to any player in the system.
-     * 
+     *
      */
     public String getPlayerDisplayName(int playerId) throws IDInvalidException{
 
@@ -136,21 +169,21 @@ public class GamesLeague implements GamesLeagueInterface {
 
     /**
      * Get the player's email.
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return The email of the player.
      * @throws IllegalEmailException If the email does not match to any player in the system.
-     * 
+     *
      */
     public String getPlayerEmail(int playerId) throws IllegalEmailException{
-        
+
         return "";  // placeholder so class compiles
     };
 
 
     /**
      * Get the in progress leagues a player is currently a member.
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return An array of league IDs the player is in or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
@@ -161,9 +194,9 @@ public class GamesLeague implements GamesLeagueInterface {
     };
 
 
-    /** 
+    /**
      * Get the leagues a player owns.
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return An array of league IDs the player owns or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
@@ -175,13 +208,13 @@ public class GamesLeague implements GamesLeagueInterface {
 
     /**
      * Get the user's invites
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return An array of league IDs the player has invites to or an empty array if none exists.
      * @throws IDInvalidException If the ID does not match to any player in the system.
      */
     public int[] getPlayerInvites(int playerId) throws IDInvalidException{
-        
+
         return new int[0]; // placeholder so class compiles
     };
 
@@ -189,7 +222,7 @@ public class GamesLeague implements GamesLeagueInterface {
     /**
      * Get the user's rounds played game stat across all leagues
      * (includes closed/removed leagues)
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return number of rounds played by the player.
      * @throws IDInvalidException If the ID does not match to any player in the system.
@@ -204,7 +237,7 @@ public class GamesLeague implements GamesLeagueInterface {
      * Get the user's round participation percentage stat
      *  i.e. if they play all games in all their leagues every day this will be 100
      *  (includes closed/removed leagues)
-     * 
+     *
      * @param playerId The ID of the player being queried.
      * @return percentage of rounds (0-100) played by the player across all leagues.
      * @throws IDInvalidException If the ID does not match to any player in the system.
