@@ -23,9 +23,6 @@ public class TestPlayerApp {
             league.createPlayer("player1@example.com", "Duplicate", "Jack Doe", "555555555");
             System.out.println("Error: Duplicate email test failed");
 
-            int player3 = league.createPlayer("player3@example.com", "PlayerThree", "Jack Doe", "111111111");
-            System.out.println("Created Player 3 with ID: " + player3);
-
         } catch (Exception e) {
             System.out.println("Correctly caught exception: " + e.getMessage());
         }

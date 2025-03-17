@@ -46,7 +46,7 @@ public class Player implements Serializable {
             // if the code reaches this point, the file is empty so we serialise an empty Player ArrayList to hold all Player objects
             serialisePlayers(new ArrayList<Player>()); 
         }
-        return new ArrayList<Player>(); // if there are no players stored in 'Players.set', an empty list is returned
+        return new ArrayList<Player>(); // if there are no players stored in 'Players.ser', an empty list is returned
     }
 
     public static void serialisePlayers(ArrayList<Player> players) {
@@ -58,26 +58,36 @@ public class Player implements Serializable {
         }
     }
 
+    public static int getNextId() {
+        // De-serialising nextId from 'nextId.ser'
+        try (ObjectInputStream nextIdIn = new ObjectInputStream(new FileInputStream("./src/gamesleague/save/nextId.ser"))) {
+            return (int) nextIdIn.readObject(); // reading value from bytestream
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("nextId.ser not found or unreadable. Starting from ID 0.");
+            return 0;
+        }
+
+    }
+
+    public static void serialiseNextId(int nextId) {
+        // Serialising the 'nextId' parameter to be stored in 'nextId.ser'
+        try (ObjectOutputStream nextIdOut = new ObjectOutputStream(new FileOutputStream("./src/gamesleague/save/nextId.ser"))) {
+            nextIdOut.writeObject(nextId); // writing value of 'nextId' to bytestream
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     // getters and setters
     public int getId() {
         return this.id;
     }
 
-    // IDs are allocated automatically; should not be used for reassignment
+    // ensure unique, non-reassignable IDs using nextId.ser
     private void setId() {
-        ArrayList<Player> players = getPlayers();
-
-        if (players.isEmpty()) {
-            this.id = 0; // start from 0 if no players exist
-        } else {
-            int maxId = 0;
-            for (Player p : players) {
-                if (p.getId() > maxId) {
-                    maxId = p.getId();
-                }
-            }
-            this.id = maxId + 1;
-        }
+        int newId = getNextId();
+        this.id = newId;
+        serialiseNextId(newId + 1);
     }
 
     public String getEmail() {
