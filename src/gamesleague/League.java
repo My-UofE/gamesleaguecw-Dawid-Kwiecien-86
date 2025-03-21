@@ -203,15 +203,15 @@ public class League implements Serializable {
     }
 
     public HashMap<Integer, int[]> getDayScores() {
-        return new HashMap<>(this.dayScores);
+        return this.dayScores;
     }
 
     public HashMap<Integer, HashMap<Integer, String>> getGameReports() {
-        return new HashMap<>(this.gameReports);
+        return this.gameReports;
     }
 
     public HashMap<Integer, Boolean> getPlayerStatus() {
-        return new HashMap<>(this.playerStatus);
+        return this.playerStatus;
     }
 
 }
