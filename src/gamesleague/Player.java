@@ -19,8 +19,6 @@ public class Player implements Serializable {
         this.name = name;
         this.joinDate = LocalDate.now();
         setId();
-
-
     }
 
     public Player(String email, String displayName, String name, String phone) {

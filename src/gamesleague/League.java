@@ -21,7 +21,7 @@ public class League implements Serializable {
     private ArrayList<Integer> playerInvites;
     private HashMap<Integer, int[]> dayScores;
     private HashMap<Integer, HashMap<Integer, String>> gameReports;
-    private HashMap<Integer, Boolean> playerStatus;
+    private HashMap<Integer, Status> playerStatus;
 
 
     public League(int owner, String name, GameType gameType) {
@@ -37,7 +37,6 @@ public class League implements Serializable {
         this.dayScores = new HashMap<>();
         this.gameReports = new HashMap<>();
         this.playerStatus = new HashMap<>();
-
     }
 
     public void addLeagueToList() {
@@ -176,12 +175,32 @@ public class League implements Serializable {
         return new HashMap<>(this.dayScores);
     }
 
+    public void setDayScores(HashMap<Integer, int[]> dayScores) {
+        this.dayScores = dayScores;
+    }
+
+    public void addDayScores(int day, int[] scores) {
+        this.dayScores.put(day, scores);
+        serialiseLeagues(getLeagues());
+    }
+
     public HashMap<Integer, HashMap<Integer, String>> getGameReports() {
         return new HashMap<>(this.gameReports);
     }
 
-    public HashMap<Integer, Boolean> getPlayerStatus() {
+    public void addGameReport(int playerId, int day, String gameReport) {
+        HashMap<Integer, String> playerGameReports = this.gameReports.get(playerId);
+        playerGameReports.put(day, gameReport);
+        serialiseLeagues(getLeagues());
+    }
+
+    public HashMap<Integer, Status> getPlayerStatus() {
         return new HashMap<>(this.playerStatus);
+    }
+
+    public void setPlayerStatus(int playerId, Status status) {
+        this.playerStatus.replace(playerId, status);
+        serialiseLeagues(getLeagues());
     }
 
 }

@@ -3,6 +3,8 @@ package gamesleague;
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * GamesLeague Class Template
@@ -676,6 +678,70 @@ public class GamesLeague implements GamesLeagueInterface {
 
     // Results
 
+    // Helper method to check if the league contains a specific id; prevents duplicate code
+    public boolean leagueContainsId(int leagueId) {
+        for (int id : getLeagueIds()) {
+            if (leagueId == id) { // if league id matches any id in the list of ids, it exists
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Same as above method but for a specific player id in a specific league
+    public boolean leagueContainsPlayerId(int leagueId, int playerId) {
+        League league = League.getLeagues().get(leagueId); // new league object in which the player id will be checked
+        for (int id : league.getLeaguePlayerIds()) { // if playerId matches any id in this league, it exists
+            if (playerId == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean dayAlreadyClosed(int day, int leagueId) {
+        League league = League.getLeagues().get(leagueId);
+        for (int playerId : league.getPlayerStatus().keySet()) {
+            if (league.getPlayerStatus().get(playerId) != Status.CLOSED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean dayAlreadyVoided(int day, int leagueId) {
+        League league = League.getLeagues().get(leagueId);
+
+        HashMap<Integer, Integer> scoreMap = new HashMap<>();
+        for (int dayId : league.getDayScores().keySet()) {
+            int totalScore = 0;
+            for (int score : league.getDayScores().get(dayId)) {
+                totalScore += score;
+            }
+            scoreMap.put(dayId, totalScore);
+        }
+
+        int voidDay = -1;
+        for (int dayId : scoreMap.keySet()) {
+            if (scoreMap.get(dayId) == 0) {
+                voidDay = dayId;
+            }
+        }
+
+        if (voidDay != -1 && LocalDate.now().minusDays(2).toEpochDay() >= voidDay) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean dayIsValid(int day, int leagueId) {
+        League league = League.getLeagues().get(leagueId);
+        if (day < league.getStartDate().toEpochDay() || day > league.getEndDate().toEpochDay()) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Register gameplay by a player in a league. 
      * The status of the player should be set to IN_PROGRESS.
@@ -692,9 +758,14 @@ public class GamesLeague implements GamesLeagueInterface {
     public void registerGameReport(int day, int leagueId,  int playerId, String gameReport ) 
         throws IDInvalidException, IllegalOperationException{
 
-        return; // placeholder so class compiles
-    };
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (!leagueContainsPlayerId(leagueId, playerId)) throw new IDInvalidException("No player in league with ID " + playerId); 
 
+        League league = League.getLeagues().get(leagueId);
+        league.setPlayerStatus(playerId, Status.IN_PROGRESS);
+        league.addGameReport(playerId, day, gameReport);
+        League.serialiseLeagues(League.getLeagues());
+    }
 
     /** 
      * Get the game report for a player in a league.
@@ -711,13 +782,17 @@ public class GamesLeague implements GamesLeagueInterface {
     public String getGameReport(int day, int leagueId,  int playerId) 
         throws IDInvalidException, InvalidDateException{
 
-        return ""; // placeholder so class compiles
-    };
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (!leagueContainsPlayerId(leagueId, playerId)) throw new IDInvalidException("No player in league with ID " + playerId); 
+        if (!dayIsValid(day, leagueId)) throw new InvalidDateException("Day is not a valid day for the league");
 
+        League league = League.getLeagues().get(leagueId);
+        return league.getGameReports().get(playerId).get(day);
+    };
 
     /**
      * Register day game scores. Will be called when all play in a round is complete.
-     * with scored ordered to match player array returned by getLeaguePlayers().
+     * with scores ordered to match player array returned by getLeaguePlayers().
      * Once scores are registered the game status for each player should be set to CLOSED.
      * 
      * @param day The epoch day the game was played.
@@ -730,8 +805,18 @@ public class GamesLeague implements GamesLeagueInterface {
     public void registerDayScores(int day, int leagueId, int[] scores) 
         throws IDInvalidException, IllegalArgumentException{
 
-        return; // placeholder so class compiles
-    };
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (dayAlreadyClosed(day, leagueId)) throw new IllegalArgumentException("Day has already been closed");
+        if (dayAlreadyVoided(day, leagueId)) throw new IllegalArgumentException("Current date is 2 days or more after being voided");
+
+        League league = League.getLeagues().get(leagueId);
+        league.addDayScores(day, scores);
+
+        for (int playerId : league.getPlayerStatus().keySet()) {
+            league.setPlayerStatus(playerId, Status.CLOSED);
+        }
+        League.serialiseLeagues(League.getLeagues());
+    }
 
 
     /**
@@ -747,8 +832,23 @@ public class GamesLeague implements GamesLeagueInterface {
     public void voidDayPoints(int day, int leagueId) 
         throws IDInvalidException, IllegalArgumentException{
 
-        return; // placeholder so class compiles
-    };  
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (!dayIsValid(day, leagueId)) throw new InvalidDateException("Day is not a valid day for the league");
+        if (dayAlreadyVoided(day, leagueId)) throw new IllegalArgumentException("Current date is 2 days or more after being voided");
+        
+        League league = League.getLeagues().get(leagueId);
+        HashMap<Integer, int[]> dayScores = league.getDayScores();
+
+        for (int dayId : dayScores.keySet()) {
+            if (dayId == day) {
+                for (int i=0; i<dayScores.get(day).length; i++) {
+                    dayScores.get(day)[i] = 0;
+                }
+            }
+        }
+        league.setDayScores(dayScores);
+        league.serialiseLeagues(League.getLeagues());
+    }
 
 
     /**
@@ -768,8 +868,32 @@ public class GamesLeague implements GamesLeagueInterface {
     public Status getDayStatus(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException{
 
-        return Status.PENDING; // placeholder so class compiles
-    };
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (!dayIsValid(day, leagueId)) throw new InvalidDateException("Day is not a valid day for the league");
+
+        League league = League.getLeagues().get(leagueId);
+
+        int pendingCount = 0;
+        int closedCount = 0;
+        for (int dayId : league.getPlayerStatus().keySet()) {
+            switch (league.getPlayerStatus().get(dayId)) {
+                case PENDING:
+                    pendingCount++;
+                    break;
+                case CLOSED:
+                    closedCount++;
+                    break;
+            }
+        }
+
+        if (pendingCount == league.getPlayerStatus().size()) {
+            return Status.PENDING;
+        } else if (closedCount == league.getPlayerStatus().size()) {
+            return Status.CLOSED;
+        } else {
+            return Status.IN_PROGRESS;
+        }
+    }
 
 
     /**
@@ -786,11 +910,16 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws InvalidDateException If the day is not a valid day for the league.
      */
-    public int[] getDayScores(int leagueId, int day ) 
+    public int[] getDayScores(int leagueId, int day) 
         throws IDInvalidException, InvalidDateException{
 
-        return new int[0]; // placeholder so class compiles
-    };
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (!dayIsValid(day, leagueId)) throw new InvalidDateException("Day is not a valid day for the league");
+
+        League league = League.getLeagues().get(leagueId);
+
+        return league.getDayScores().get(day);
+    }
 
 
     /**
@@ -808,6 +937,19 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public int[] getDayPoints(int leagueId, int day ) 
         throws IDInvalidException, InvalidDateException{
+
+        if (!leagueContainsId(leagueId)) throw new IDInvalidException("No league with ID " + leagueId);
+        if (!dayIsValid(day, leagueId)) throw new InvalidDateException("Day is not a valid day for the league");
+
+        League league = League.getLeagues().get(leagueId);
+        int[] scores = league.getDayScores().get(day);
+        HashMap<Integer, Integer> indexedScores = new HashMap<>();
+        int orderIdx = 0;
+        
+        for (int i=0; i<scores.length; i++) {
+            indexedScores.put(orderIdx, scores[i]);
+            orderIdx++;
+        }
 
         return new int[0]; // placeholder so class compiles
     };
