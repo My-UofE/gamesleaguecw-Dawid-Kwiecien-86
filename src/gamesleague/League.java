@@ -9,13 +9,13 @@ import java.time.LocalDate;
 public class League implements Serializable {
 
     private int leagueId;
-    private int ownerId;
     private String name;
     private GameType gameType;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate closeDate;
     private Status leagueStatus;
+    private ArrayList<Integer> ownerIds;
     private ArrayList<Integer> playerIds;
     private ArrayList<String> emailInvites;
     private ArrayList<Integer> playerInvites;
@@ -23,12 +23,15 @@ public class League implements Serializable {
     private HashMap<Integer, HashMap<Integer, String>> gameReports;
     private HashMap<Integer, Boolean> playerStatus;
 
-
     public League(int owner, String name, GameType gameType) {
-        this.ownerId = owner;
+        this.ownerIds = new ArrayList<>();
+        this.ownerIds.add(owner);
         this.name = name;
         this.gameType = gameType;
-        this.startDate = LocalDate.now();
+        this.startDate = null;
+        this.endDate = null;
+        this.closeDate = null;
+        this.leagueStatus = null;
         setId();
 
         this.playerIds = new ArrayList<>();
@@ -85,6 +88,33 @@ public class League implements Serializable {
         }
     }
 
+    public void addPlayerToLeague(int playerId) {
+        if (!playerIds.contains(playerId)) {
+            playerIds.add(playerId);
+            League.serialiseLeagues(getLeagues());
+        }
+    }
+
+    public void addPlayerInvite(int playerId) {
+            this.playerInvites.add(playerId);
+            League.serialiseLeagues(getLeagues());
+    }
+
+    public void addEmailInvite(String email) {
+            this.emailInvites.add(email);
+            League.serialiseLeagues(getLeagues());
+    }
+
+    public void addOwner(int playerId) {
+        this.ownerIds.add(playerId);
+        League.serialiseLeagues(getLeagues());
+    }
+
+    public void removeOwner(int playerId) {
+            ownerIds.remove(Integer.valueOf(playerId));
+            League.serialiseLeagues(getLeagues());
+    }
+
     // getters and setters
     public int getId() {
         return this.leagueId;
@@ -97,13 +127,8 @@ public class League implements Serializable {
         serialiseNextLeagueId(newLeagueId + 1);
     }
 
-    public int getOwnerId(){
-        return this.ownerId;
-    }
-
-    public void setOwnerId(int ownerId) {
-        this.ownerId = ownerId;
-        serialiseLeagues(getLeagues());
+    public ArrayList<Integer> getOwnerIds() {
+        return this.ownerIds;
     }
 
     public String getLeagueName(){
@@ -161,15 +186,20 @@ public class League implements Serializable {
     }
 
     public ArrayList<Integer> getLeaguePlayerIds() {
-        return new ArrayList<>(this.playerIds); // Returning a copy to prevent direct modification
+        return this.playerIds;
     }
 
-    public ArrayList<String> getEmailInvites() {
-        return new ArrayList<>(this.emailInvites);
+    public void setLeaguePlayerIds(ArrayList<Integer> playerIds) {
+        this.playerIds = new ArrayList<>(playerIds);
+        serialiseLeagues(getLeagues());
     }
 
     public ArrayList<Integer> getPlayerInvites() {
-        return new ArrayList<>(this.playerInvites);
+        return this.playerInvites;
+    }
+
+    public ArrayList<String> getEmailInvites() {
+        return this.emailInvites;
     }
 
     public HashMap<Integer, int[]> getDayScores() {
