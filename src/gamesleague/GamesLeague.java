@@ -1,7 +1,10 @@
 package gamesleague;
 
 import java.io.*;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -77,7 +80,6 @@ public class GamesLeague implements GamesLeagueInterface {
             throw new InvalidNameException("The name entered is invalid. Please try again");
         }
 
-
         // once all validation checks are passed, create new player object
         Player player = new Player(email, displayName, name, phone);
         player.addPlayerToList();
@@ -141,7 +143,7 @@ public class GamesLeague implements GamesLeagueInterface {
         throws  IDInvalidException, InvalidNameException {
 
         displayName = displayName.trim();
-        if (displayName.isEmpty() || displayName.length() < 1 || displayName.length() > 20) {
+        if (displayName.isEmpty() || displayName == null|| displayName.length() < 1 || displayName.length() > 20) {
             throw new InvalidNameException("The display name entered is invalid, please try again");
         }
 
@@ -307,8 +309,13 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return An array of leagues IDs in the system or an empty array if none exists.
      */
     public int[] getLeagueIds(){
-        
-        return new int[0]; // placeholder so class compiles
+        ArrayList<League> leagues = League.getLeagues();
+        int[] leagueIds = new int[leagues.size()];
+
+        for (int i = 0; i < leagues.size(); i++) {
+            leagueIds[i] = leagues.get(i).getId();
+        }
+        return leagueIds;
     };
 
     /**
@@ -329,9 +336,42 @@ public class GamesLeague implements GamesLeagueInterface {
         throws  IDInvalidException, 
                 InvalidNameException, 
                 IllegalNameException{
-        
-        return 0;  // placeholder so class compiles
-    };
+
+        // trim to get rid of leading and trailing white spaces
+        name = name.trim();
+
+        // check if ID is valid
+        int[] playerIds = getPlayerIds();
+        boolean validOwner = false;
+        for (int id : playerIds) {
+            if (id == owner) {
+                validOwner = true;
+                break;
+            }
+        }
+        if (!validOwner) {
+            throw new IDInvalidException("ID does not match any player in the system.");
+        }
+
+        // check if name is valid
+        if (name.isEmpty() || name == null || name.length() < 1 || name.length() > 20) {
+            throw new InvalidNameException("The name entered is invalid, please try again");
+        }
+
+        // check if name is already in use
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if(l.getLeagueName().equalsIgnoreCase(name)){
+                throw new IllegalNameException("The name entered is already in use. Please try again.");
+            }
+        }
+
+        // once all validation checks are passed, create new league object
+        League league = new League(owner, name, gameType);
+        league.addPlayerToLeague(owner);
+        league.addLeagueToList();
+        return league.getId();
+    }
 
     /**
      * Removes a league and all associated game data from the system.
@@ -355,8 +395,14 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
     public String getLeagueName(int leagueId) throws IDInvalidException{
-        
-        return ""; // placeholder so class compiles
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if(l.getId() == leagueId) {
+                return l.getLeagueName();
+
+            }
+        }
+        throw new IDInvalidException("ID does not match any player in the system");
     };
 
     /**
@@ -375,7 +421,29 @@ public class GamesLeague implements GamesLeagueInterface {
                 InvalidNameException, 
                 IllegalNameException{
 
-        return; // placeholder so class compiles
+        newName = newName.trim();
+        if (newName.isEmpty() || newName.length() < 1 || newName.length() > 20) {
+            throw new InvalidNameException("The name entered is invalid. Please try again.");
+        }
+
+        ArrayList<League> leagues = League.getLeagues();
+        boolean leagueFound = false;
+
+        for (League l : leagues) {
+            if (l.getLeagueName().equalsIgnoreCase(newName)) {
+                throw new IllegalNameException("The name entered is already in use. Please try again.");
+            }
+            if (l.getId() == leagueId) {
+                l.setLeagueName(newName);
+                leagueFound = true;
+            }
+        }
+
+        if (!leagueFound) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        League.serialiseLeagues(leagues);
     };
 
 
@@ -388,11 +456,64 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws InvalidEmailException If the email is null, empty, or does not contain an '@' character.
      */
-    public void invitePlayerToLeague(int leagueId, String email) 
-        throws IDInvalidException, InvalidEmailException{
+    public void invitePlayerToLeague(int leagueId, String email)
+            throws IDInvalidException, InvalidEmailException {
 
-        return; // placeholder so class compiles
-    };
+        // validate email
+        if (email == null || email.isEmpty() || !email.contains("@")) {
+            throw new InvalidEmailException("The email entered is invalid. Please try again.");
+        }
+
+        // retrieve leagues
+        ArrayList<League> leagues = League.getLeagues();
+        League targetLeague = null;
+
+        // find the target league
+        for (int i = 0; i < leagues.size(); i++) {
+            if (leagues.get(i).getId() == leagueId) {
+                targetLeague = leagues.get(i);
+                break;
+            }
+        }
+
+        if (targetLeague == null) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        // retrieve players
+        ArrayList<Player> players = Player.getPlayers();
+        boolean isRegisteredPlayer = false;
+        int playerId = -1;
+
+        // check if the email belongs to an existing player
+        for (Player p : players) {
+            if (p.getEmail().equalsIgnoreCase(email)) {
+                isRegisteredPlayer = true;
+                playerId = p.getId();
+                break;
+            }
+        }
+
+        if (isRegisteredPlayer) {
+            // if the player is already in the league, prevent duplicate invites
+            if (targetLeague.getLeaguePlayerIds().contains(playerId)) {
+                System.out.println("Player with email " + email + " is already in the league.");
+                return;
+            }
+
+            // if player is registered, add to player invites
+            if (!targetLeague.getPlayerInvites().contains(playerId)) {
+                targetLeague.addPlayerInvite(playerId);
+            }
+        } else {
+            // if player is not registered add to email invites
+            if (!targetLeague.getEmailInvites().contains(email)) {
+                targetLeague.addEmailInvite(email);
+            }
+        }
+
+        League.serialiseLeagues(leagues);
+    }
 
     /**
      * Accepts an invite to a league.
@@ -404,10 +525,54 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IllegalOperationException If the player email does not have an active invitation.
      */
     public void acceptInviteToLeague(int leagueId, int playerId) 
-        throws IDInvalidException, IllegalOperationException{
+        throws IDInvalidException, IllegalOperationException {
 
-        return; // placeholder so class compiles
-    };
+        ArrayList<League> leagues = League.getLeagues();
+        ArrayList<Player> players = Player.getPlayers();
+        League targetLeague = null;
+        Player targetPlayer = null;
+
+        // find the league
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                targetLeague = l;
+                break;
+            }
+        }
+        if (targetLeague == null) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        // find the player
+        for (Player p : players) {
+            if (p.getId() == playerId) {
+                targetPlayer = p;
+                break;
+            }
+        }
+        if (targetPlayer == null) {
+            throw new IDInvalidException("ID does not match any player in the system.");
+        }
+
+        // check if the player was invited
+        boolean invitedById = targetLeague.getPlayerInvites().contains(playerId);
+        boolean invitedByEmail = targetLeague.getEmailInvites().contains(targetPlayer.getEmail());
+
+        if (!invitedById && !invitedByEmail) {
+            throw new IllegalOperationException("This player does not have an active invitation.");
+        }
+
+        // remove invitation
+        targetLeague.getPlayerInvites().remove(Integer.valueOf(playerId));
+        targetLeague.getEmailInvites().remove(targetPlayer.getEmail());
+
+        // add player to the league
+        targetLeague.getLeaguePlayerIds().add(playerId);
+        League.serialiseLeagues(leagues);
+
+    }
+
+
 
     /**
      * Removes invite from league
@@ -417,11 +582,62 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league or player in the system.
      * @throws IllegalEmailException If the email does not have an active invitation.
      */
-    public void removeInviteFromLeague(int leagueId, String email) 
-        throws IDInvalidException, IllegalEmailException{
+    public void removeInviteFromLeague(int leagueId, String email)
+            throws IDInvalidException, IllegalEmailException {
 
-        return; // placeholder so class compiles
-    };
+        // get all leagues
+        ArrayList<League> leagues = League.getLeagues();
+        League targetLeague = null;
+
+        // validate email
+        if (email == null || email.isEmpty() || !email.contains("@")) {
+            throw new IllegalEmailException("The email entered is invalid.");
+        }
+
+        // find the target league
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                targetLeague = l;
+                break;
+            }
+        }
+
+        // ff league does not exist, throw exception
+        if (targetLeague == null) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        // get the league invitation lists
+        ArrayList<String> emailInvites = targetLeague.getEmailInvites();
+        ArrayList<Integer> playerInvites = targetLeague.getPlayerInvites();
+
+        boolean removed = false;
+
+        // remove email from email invites list if it exists
+        if (emailInvites.contains(email)) {
+            emailInvites.remove(email);
+            removed = true;
+        }
+
+        // also check if the email belongs to a registered player and remove them from playerInvites
+        ArrayList<Player> players = Player.getPlayers();
+        for (Player p : players) {
+            if (p.getEmail().equals(email)) {
+                if (playerInvites.contains(p.getId())) {
+                    playerInvites.remove(Integer.valueOf(p.getId()));
+                    removed = true;
+                }
+                break;
+            }
+        }
+
+        // if nothing was removed, the email was not found in either invite list
+        if (!removed) {
+            throw new IllegalEmailException("No active invitation found for this email.");
+        }
+
+        League.serialiseLeagues(leagues);
+    }
 
 
     /**
@@ -433,7 +649,17 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public String[] getLeagueEmailInvites(int leagueId) throws IDInvalidException{
 
-        return new String[0]; // placeholder so class compiles
+        // find the target league
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                // return email invites as an array
+                return l.getEmailInvites().toArray(new String[0]);
+            }
+        }
+
+        // if league is not found, throw an exception
+        throw new IDInvalidException("ID does not match any league in the system.");
     };
 
 
@@ -446,7 +672,17 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public int[] getLeaguePlayerInvites(int leagueId) throws IDInvalidException{
 
-        return new int[0]; // placeholder so class compiles
+        // find the target league
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                // return player invites as an array
+                return l.getPlayerInvites().stream().mapToInt(Integer::intValue).toArray();
+            }
+        }
+
+        // ff league is not found, throw an exception
+        throw new IDInvalidException("ID does not match any league in the system.");
     };
 
 
@@ -462,7 +698,17 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public int[] getLeaguePlayers(int leagueId) throws IDInvalidException{
 
-        return new int[0]; // placeholder so class compiles
+        // find the target league
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                // return league players as an array
+                return l.getLeaguePlayerIds().stream().mapToInt(Integer::intValue).toArray();
+            }
+        }
+
+        // if league is not found, throw an exception
+        throw new IDInvalidException("ID does not match any league in the system.");
     };
 
 
@@ -475,37 +721,69 @@ public class GamesLeague implements GamesLeagueInterface {
      */
     public int[] getLeagueOwners(int leagueId) throws IDInvalidException{
 
-        return new int[0]; // placeholder so class compiles
+        // find the target league
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                // return league owners as an array
+                return l.getOwnerIds().stream().mapToInt(Integer::intValue).toArray();
+            }
+        }
+
+        // if league is not found, throw an exception
+        throw new IDInvalidException("ID does not match any league in the system.");
     };
 
     /**
      * Get the status of a league. Your code should look at the current local date
      * as epoch day and compare it with any start and end dates that have been set for the league
      * Note that leagues are created without a specified start/end date
-     * 
+     *
      *  - If the league has start date is in the future (or no start date specified)
      *    the status should be PENDING
-     * 
-     *  - If the league has a specified start date in the past and 
-     *    a specified end date in the future (or no specified end date) then 
+     *
+     *  - If the league has a specified start date in the past and
+     *    a specified end date in the future (or no specified end date) then
      *    the status should be IN_PROGRESS
-     * 
+     *
      *  - If the league has a specified end date in the past then
      *    the status should be CLOSED
-     * 
+     *
      * @param leagueId The ID of the league being queried.
-     * 
+     *
      * @return The status of the league as enum as above
      *          PENDING       not yet started
      *          IN_PROGRESS   league is active
-     *          CLOSED        current date is after specified league end date 
-     *  
+     *          CLOSED        current date is after specified league end date
+     *
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public Status getLeagueStatus(int leagueId ) 
+    public Status getLeagueStatus(int leagueId )
         throws IDInvalidException{
-        
-        return Status.PENDING; // placeholder so class compiles
+
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                LocalDate today = LocalDate.now();
+                LocalDate startDate = l.getStartDate();
+                LocalDate endDate = l.getEndDate();
+
+                if (startDate == null || startDate.isAfter(today)) {
+                    return Status.PENDING;
+                } else if (!startDate.isAfter(today) && (endDate == null || endDate.isAfter(today))) {
+                    return Status.IN_PROGRESS;
+                } else if (endDate != null && endDate.isBefore(today)) {
+                    if (l.getCloseDate() == null) {
+                        l.setCloseDate(endDate);
+                        League.serialiseLeagues(leagues);
+                    }
+                    return Status.CLOSED;
+                }
+            }
+        }
+
+        throw new IDInvalidException("ID does not match any league in the system.");
+
     };
 
 
@@ -517,12 +795,28 @@ public class GamesLeague implements GamesLeagueInterface {
      * @throws IDInvalidException If the ID does not match to any league in the system.
      * @throws IllegalOperationException If the league is already started.
      */
-    public void setLeagueStartDate(int leagueId, int  day) 
-        throws IDInvalidException, IllegalOperationException{
+    public void setLeagueStartDate(int leagueId, int day)
+            throws IDInvalidException, IllegalOperationException {
 
-        return; // placeholder so class compiles
-    };
+        ArrayList<League> leagues = League.getLeagues();
+        boolean leagueFound = false;
 
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                LocalDate requestedStartDate = LocalDate.ofEpochDay(day);
+
+                l.setStartDate(requestedStartDate);
+                leagueFound = true;
+                break;
+            }
+        }
+
+        if (!leagueFound) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        League.serialiseLeagues(leagues);
+    }
 
     /** 
      * Close league, day specified may be any date after the league start day
@@ -535,7 +829,21 @@ public class GamesLeague implements GamesLeagueInterface {
     public void setLeagueEndDate(int leagueId, int day) 
         throws IDInvalidException, IllegalOperationException{
 
-        return; // placeholder so class compiles
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                if (getLeagueStatus(leagueId) == Status.CLOSED) {
+                    throw new IllegalOperationException("This league has already been closed.");
+                }
+
+                LocalDate endDate = LocalDate.ofEpochDay(day);
+                l.setEndDate(endDate);
+                League.serialiseLeagues(leagues);
+                return;
+            }
+        }
+        throw new IDInvalidException("ID does not match any league in the system.");
+
     };
 
 
@@ -546,22 +854,41 @@ public class GamesLeague implements GamesLeagueInterface {
      * @return The start date of the league as epoch day.
      * @throws IDInvalidException If the ID does not match to any league in the system.
      */
-    public int getLeagueStartDate(int leagueId) throws IDInvalidException{
-        
-        return 0; // placeholder so class compiles
-    };
+    public int getLeagueStartDate(int leagueId) throws IDInvalidException {
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                LocalDate startDate = l.getStartDate();
+                if (startDate == null) {
+                    return -1; //
+                }
+                return (int) startDate.toEpochDay();
+            }
+        }
+        throw new IDInvalidException("ID does not match any league in the system.");
+    }
 
 
-    /**
-     * Get the date a closed league closed date (as epoch day).
-     * 
-     * @param leagueId The ID of the league being queried.
-     * @return The closure date of the league as epoch day or -1 if not closed.
-     * @throws IDInvalidException If the ID does not match to any league in the system.
-     */
+
+        /**
+         * Get the date a closed league closed date (as epoch day).
+         *
+         * @param leagueId The ID of the league being queried.
+         * @return The closure date of the league as epoch day or -1 if not closed.
+         * @throws IDInvalidException If the ID does not match to any league in the system.
+         */
     public int getLeagueCloseDate(int leagueId) throws IDInvalidException{
 
-        return 0; // placeholder so class compiles
+        ArrayList<League> leagues = League.getLeagues();
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                if (getLeagueStatus(leagueId) != Status.CLOSED) {
+                    return -1;
+                }
+                return (int) l.getCloseDate().toEpochDay();
+            }
+        }
+        throw new IDInvalidException("ID does not match any league in the system.");
     };
 
 
@@ -656,7 +983,40 @@ public class GamesLeague implements GamesLeagueInterface {
     public void addOwner(int leagueId, int playerId) 
         throws IDInvalidException, IllegalOperationException{
 
-        return; // placeholder so class compiles
+        ArrayList<League> leagues = League.getLeagues();
+        ArrayList<Player> players = Player.getPlayers();
+        League targetLeague = null;
+        Player targetPlayer = null;
+
+        // find the league
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                targetLeague = l;
+                break;
+            }
+        }
+        if (targetLeague == null) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        // find the player
+        for (Player p : players) {
+            if (p.getId() == playerId) {
+                targetPlayer = p;
+                break;
+            }
+        }
+        if (targetPlayer == null) {
+            throw new IDInvalidException("ID does not match any player in the system.");
+        }
+
+        // validate membership before adding owner
+        if (!targetLeague.getLeaguePlayerIds().contains(playerId)) {
+            throw new IllegalOperationException("Player must be a member of the league to be added as an owner.");
+        }
+        targetLeague.addOwner(playerId);
+        League.serialiseLeagues(leagues);
+
     };
 
     /** 
@@ -672,7 +1032,46 @@ public class GamesLeague implements GamesLeagueInterface {
     public void removeOwner(int leagueId, int playerId) 
         throws IDInvalidException, IllegalOperationException{
 
-        return; // placeholder so class compiles
+        ArrayList<League> leagues = League.getLeagues();
+        ArrayList<Player> players = Player.getPlayers();
+        League targetLeague = null;
+        Player targetPlayer = null;
+
+        // find the league
+        for (League l : leagues) {
+            if (l.getId() == leagueId) {
+                targetLeague = l;
+                break;
+            }
+        }
+        if (targetLeague == null) {
+            throw new IDInvalidException("ID does not match any league in the system.");
+        }
+
+        // find the player
+        for (Player p : players) {
+            if (p.getId() == playerId) {
+                targetPlayer = p;
+                break;
+            }
+        }
+        if (targetPlayer == null) {
+            throw new IDInvalidException("ID does not match any player in the system.");
+        }
+
+        // check if player is actually an owner
+        if (!targetLeague.getOwnerIds().contains(playerId)) {
+            throw new IllegalOperationException("Player is not an owner of the league.");
+        }
+
+        // check if this is the last remaining owner
+        if (targetLeague.getOwnerIds().size() == 1) {
+            throw new IllegalOperationException("Cannot remove the last remaining owner of the league.");
+        }
+
+        // safe to remove
+        targetLeague.removeOwner(playerId);
+        League.serialiseLeagues(leagues);
     };
 
 
